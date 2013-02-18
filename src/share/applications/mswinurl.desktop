@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=URL Opener
+Comment=Opens Internet Shortcut .url files
+Exec=mswinurl %F
+#Icon=fooview.png
+MimeType=application/x-mswinurl;
