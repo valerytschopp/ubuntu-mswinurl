@@ -11,21 +11,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# RPM packaging
-#
-name = mswinurl
-version = 1.0.0
-release = 1
 
-prefix=/
+name=mswinurl
+version=1.0
+release=1
 
-spec_file = fedora/$(name).spec
-rpmbuild_dir = $(CURDIR)/rpmbuild
+prefix=/usr
+
 tmp_dir=$(CURDIR)/tmp
+debbuild_dir=$(CURDIR)/debbuild
+
+#all: deb
 
 clean:
 	@echo "Cleaning..."
-	rm -rf $(rpmbuild_dir) $(spec_file) *.rpm $(name) $(tmp_dir) *.tar.gz
+	rm -rf $(debbuild_dir) *.deb $(name)*
 
 dist:
 	@echo "Package the sources..."
@@ -37,31 +37,27 @@ dist:
 	tar -C $(tmp_dir) -czf $(name)-$(version).tar.gz $(name)-$(version)
 	rm -fr $(tmp_dir)
 
-spec:
-	@echo "Setting version and release in spec file: $(version)-$(release)"
-	sed -e 's#@@SPEC_VERSION@@#$(version)#g' -e 's#@@SPEC_RELEASE@@#$(release)#g' $(spec_file).in > $(spec_file)
+pre_debbuild:
+	@echo "Prepare for Debian building in $(debbuild_dir)"
+	mkdir -p $(debbuild_dir)
+	test -f $(debbuild_dir)/$(name)_$(version).orig.tar.gz || cp $(name)-$(version).tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
+	tar -C $(debbuild_dir) -xzf $(debbuild_dir)/$(name)_$(version).orig.tar.gz
+	cp -r debian $(debbuild_dir)/$(name)-$(version)
 
-pre_rpmbuild: spec
-	@echo "Preparing for rpmbuild in $(rpmbuild_dir)"
-	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
-	test -f $(rpmbuild_dir)/SOURCES/$(name)-$(version).tar.gz || wget -P $(rpmbuild_dir)/SOURCES $(dist_url)
+deb-src: pre_debbuild
+	@echo "Building Debian source package in $(debbuild_dir)"
+	cd $(debbuild_dir) && dpkg-source -b $(name)-$(version)
+	find $(debbuild_dir) -maxdepth 1 -type f -exec cp '{}' . \;
 
-
-srpm: pre_rpmbuild
-	@echo "Building SRPM in $(rpmbuild_dir)"
-	rpmbuild --nodeps -v -bs $(spec_file) --define "_topdir $(rpmbuild_dir)"
-	cp $(rpmbuild_dir)/SRPMS/*.src.rpm .
-
-
-rpm: pre_rpmbuild
-	@echo "Building RPM/SRPM in $(rpmbuild_dir)"
-	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
-	find $(rpmbuild_dir)/RPMS -name "*.rpm" -exec cp '{}' . \;
+deb: pre_debbuild
+	@echo "Building Debian package in $(debbuild_dir)"
+	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc
+	find $(debbuild_dir) -maxdepth 1 -name "*.deb" -exec cp '{}' . \;
 
 install:
 	echo "Installing in $(DESTDIR)$(prefix)"
-	install -d $(DESTDIR)$(prefix)/usr/bin
-	install -t $(DESTDIR)$(prefix)/usr/bin src/bin/$(name)
-	install -d $(DESTDIR)$(prefix)/usr/share/applications
-	install -t $(DESTDIR)$(prefix)/usr/share/applications src/share/applications/$(name).desktop
+	install -d $(DESTDIR)$(prefix)/bin
+	install -t $(DESTDIR)$(prefix)/bin src/bin/$(name)
+	install -d $(DESTDIR)$(prefix)/share/applications
+	install -t $(DESTDIR)$(prefix)/share/applications src/share/applications/$(name).desktop
 
