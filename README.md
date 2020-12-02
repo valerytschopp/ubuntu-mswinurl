@@ -1,4 +1,5 @@
-ubuntu-mswinurl
-===============
+# ubuntu-mswinurl
 
-Ubuntu scripts to handle the mimetype application/x-mswinurl .URL Windows file
+Handles mimetype application/x-mswinurl.
+
+The handler will open the internet shortcut .url file in the user's preferred web browser.
