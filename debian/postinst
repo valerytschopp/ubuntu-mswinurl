@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if command -v update-mime-database  &> /dev/null
+then
+   update-mime-database /usr/share/mime
+else
+   echo "WARNING: update-mime-database not installed"
+fi
+
+if command -v update-desktop-database  &> /dev/null
+then
+   update-desktop-database /usr/share/applications
+else
+   echo "WARNING: update-desktop-database not installed"
+fi
+

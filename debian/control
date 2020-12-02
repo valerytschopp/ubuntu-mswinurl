@@ -1,0 +1,16 @@
+Source: mswinurl
+Section: misc
+Priority: optional
+Maintainer: Valery Tschopp <valery.tschopp@gmail.com>
+Build-Depends: debhelper (>= 9.20160709)
+Standards-Version: 3.9.6
+Homepage: https://github.com/valerytschopp/ubuntu-mswinurl
+Vcs-Git: git://github.com/valerytschopp/ubuntu-mswinurl.git
+
+Package: mswinurl
+Architecture: all
+Depends: ${misc:Depends}, xdg-utils
+Description: Handles mimetype application/x-mswinurl
+  The handler will open the internet shortcut .url file in
+  the user's preferred web browser.
+
