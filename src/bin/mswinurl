@@ -31,4 +31,4 @@ if [ -z "$URL" ] ; then
 fi 
 
 # open with prefered browser
-xdg-open $URL > /dev/null 2>&1
+xdg-open "$URL" > /dev/null 2>&1
